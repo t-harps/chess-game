@@ -1,15 +1,22 @@
 require_relative 'board'
+require 'yaml'
 
 class Game
   attr_accessor :board
   def initialize
   	@board = Board.new
-  	board.display_board
-  	@player = 1
-  	play(@player)
+  	player = 1
+  	puts "Would you like to load a previous game?"
+		input = gets.chomp.downcase
+		if input == "yes" || input == "load"
+  		@board = load_game
+  		@board.display_board
+  	end
+  	play(player)
   end
 
   def play(player)
+  	board.display_board
   	bool = true
    	i = 1
 		x = 0
@@ -67,14 +74,18 @@ class Game
   end
 
   def get_input(player)
-  	puts "Player #{player} enter piece coordinates and destination coordinates: x,y x,y"
+  	puts "Player #{player} enter piece coordinates and destination coordinates: x,y x,y (save?)"
   	input = gets.chomp
-  	unless /^[1-8],[1-8]\s[1-8],[1-8]$/ === input
+  	if /^save$/ === input
+  		save_game(player)
+  		get_input(player)
+  	elsif /^[1-8],[1-8]\s[1-8],[1-8]$/ === input
+  		from,to = convert_input(input)
+  		return from, to
+  	else 
   		puts "You must select coordinates between 1-8, using the format x,y x,y"
   		get_input(player)
-  	end 
-  	from,to = convert_input(input)
-  	return from, to
+  	end
   end
 
   def convert_input(input)
@@ -214,6 +225,23 @@ class Game
 		else
 			return 1
 		end
+	end
+
+	def save_game(player)
+    print "Name your save game: "
+    name = gets.chomp.downcase
+ 		yaml = YAML::dump(board)
+  	game_file = File.open("../saves/#{name}.yaml", "w")
+  	game_file.write(yaml)
+  	game_file.close
+  end
+
+  def load_game
+  	puts "Which game would you like to load?"
+		name = gets.chomp.downcase
+  	game_file = File.open("../saves/#{name}.yaml", "r")
+  	saved_board = YAML::load(game_file.read)
+  	return saved_board
 	end
 
 end
