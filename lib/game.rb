@@ -192,15 +192,16 @@ class Game
   	end
   	possible = possible_king_moves(coords)
   	possible.each do |to|
-  		to_piece = board.get_piece(to)
-  		unless move_piece(p,coords,to,1000)
-  			in_check = check?(p)
-  			if in_check == false
-  				move_piece(p,to,coords,1001)
-  				board.put(to, to_piece)
-  				return false
-  			end
-  		end
+      unless to[0] > 8 || to[0] < 1 || to[1] > 7 || to[1] < 0
+    		unless move_piece(p,coords,to,1000)
+    			in_check = check?(p)
+    			if in_check == false
+    				move_piece(p,to,coords,1001)
+    				board.put(to, to_piece)
+    				return false
+    			end
+    		end
+      end
   	end
   	puts "checkmate"
   	return true
